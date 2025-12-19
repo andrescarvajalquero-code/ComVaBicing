@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ratea Bici BCN</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; }
+    .stars button { font-size: 32px; background: transparent; border: 0; cursor: pointer; padding: 0 4px; }
+    textarea { width: 100%; padding: 10px; }
+    input { width: 100%; padding: 10px; }
+    .card { border-top: 1px solid #eee; padding: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>Ratea bicis (por ID)</h1>
+
+  <label>ID de bici</label>
+  <input id="bikeId" placeholder="Ej: 12345" />
+  <button id="go">Ver</button>
+
+  <hr />
+
+  <div id="view" style="display:none;">
+    <h2 id="title"></h2>
+    <p id="stats"></p>
+
+    <div class="stars" id="stars"></div>
+
+    <textarea id="comment" rows="4" maxlength="400" placeholder="Comentario (opcional)"></textarea>
+    <button id="send">Enviar review</button>
+    <p id="msg"></p>
+
+    <h3>Últimas reviews</h3>
+    <div id="reviews"></div>
+  </div>
+
+<script>
+  // 1) Device id local (sin cuentas)
+  function getDeviceId() {
+    const k = "device_id_v1";
+    let v = localStorage.getItem(k);
+    if (!v) { v = crypto.randomUUID(); localStorage.setItem(k, v); }
+    return v;
+  }
+
+  // 2) UI estrellas
+  let selected = 0;
+  const starsEl = document.getElementById("stars");
+  function renderStars() {
+    starsEl.innerHTML = "";
+    for (let n=1; n<=5; n++) {
+      const b = document.createElement("button");
+      b.textContent = (n <= selected) ? "★" : "☆";
+      b.onclick = () => { selected = n; renderStars(); };
+      starsEl.appendChild(b);
+    }
+  }
+  renderStars();
+
+  // 3) Config: tu Worker endpoint (lo pondrás en el paso 3)
+  const API_BASE = "REEMPLAZA_POR_TU_WORKER_URL"; // ej: https://api-rateabici.tudominio.workers.dev
+
+  async function loadBike(bikeId) {
+    document.getElementById("view").style.display = "block";
+    document.getElementById("title").textContent = "Bici " + bikeId;
+
+    const res = await fetch(`${API_BASE}/bike/${encodeURIComponent(bikeId)}`);
+    const data = await res.json();
+
+    const avg = (data.avg == null) ? "—" : data.avg.toFixed(2);
+    document.getElementById("stats").textContent = `Media: ${avg} · ${data.count} reviews`;
+
+    const list = document.getElementById("reviews");
+    list.innerHTML = "";
+    (data.reviews || []).forEach(r => {
+      const d = document.createElement("div");
+      d.className = "card";
+      d.innerHTML = `<div>${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</div>
+                     <div>${(r.comment || "<span style='opacity:.6'>(sin comentario)</span>")}</div>
+                     <small style="opacity:.7">${new Date(r.created_at).toLocaleString()}</small>`;
+      list.appendChild(d);
+    });
+  }
+
+  document.getElementById("go").onclick = () => {
+    const bikeId = document.getElementById("bikeId").value.trim();
+    if (bikeId) loadBike(bikeId);
+  };
+
+  document.getElementById("send").onclick = async () => {
+    const bikeId = document.getElementById("bikeId").value.trim();
+    const comment = document.getElementById("comment").value;
+    const msg = document.getElementById("msg");
+    msg.textContent = "";
+
+    if (!bikeId) return msg.textContent = "Pon un ID de bici.";
+    if (!selected) return msg.textContent = "Elige estrellas (1–5).";
+
+    const res = await fetch(`${API_BASE}/bike/${encodeURIComponent(bikeId)}/review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rating: selected, comment, device_id: getDeviceId() })
+    });
+
+    if (res.ok) {
+      msg.textContent = "¡Review enviada!";
+      selected = 0; renderStars();
+      document.getElementById("comment").value = "";
+      await loadBike(bikeId);
+    } else if (res.status === 409) {
+      msg.textContent = "Ya has valorado esta bici hoy.";
+    } else if (res.status === 429) {
+      msg.textContent = "Has llegado al límite: 4 reviews hoy.";
+    } else {
+      msg.textContent = "Error enviando la review.";
+    }
+  };
+</script>
+</body>
+</html>
