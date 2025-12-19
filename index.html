@@ -1,42 +1,290 @@
 <!doctype html>
-<html lang="es">
+<html lang="ca">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ratea Bici BCN</title>
+  <title>RodaBé</title>
+  <meta name="description" content="Valora bicicletes públiques per ID (1–5 estrelles + comentari)." />
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; }
-    .stars button { font-size: 32px; background: transparent; border: 0; cursor: pointer; padding: 0 4px; }
-    textarea { width: 100%; padding: 10px; }
-    input { width: 100%; padding: 10px; }
-    .card { border-top: 1px solid #eee; padding: 10px 0; }
+    :root{
+      --bg:#0b0c10;
+      --card:#12141b;
+      --muted:#9aa3b2;
+      --text:#eef1f6;
+      --line:rgba(255,255,255,.08);
+      --accent:#7c5cff;
+      --accent2:#2dd4bf;
+      --danger:#ff5c7a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f7fb;
+        --card:#ffffff;
+        --muted:#5b6473;
+        --text:#0f172a;
+        --line:rgba(15,23,42,.10);
+        --shadow: 0 10px 30px rgba(15,23,42,.10);
+      }
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 10% 0%, rgba(124,92,255,.18), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(45,212,191,.14), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+    .wrap{
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px 2px 18px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+    }
+    .logo{
+      width:40px; height:40px; border-radius:14px;
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(45,212,191,.85));
+      box-shadow: var(--shadow);
+      display:grid; place-items:center;
+      font-weight:800;
+    }
+    .brand h1{
+      font-size: 20px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .brand p{
+      margin:2px 0 0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+    .badge{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid var(--line);
+      padding: 6px 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.03);
+    }
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .grid{
+      display:grid;
+      gap: 12px;
+    }
+    .row{
+      display:flex; gap:10px; align-items:center;
+    }
+    label{
+      display:block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    input, textarea{
+      width:100%;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      padding: 12px 12px;
+      border-radius: 12px;
+      outline:none;
+      font-size: 15px;
+    }
+    input:focus, textarea:focus{
+      border-color: rgba(124,92,255,.55);
+      box-shadow: 0 0 0 4px rgba(124,92,255,.12);
+    }
+    textarea{ resize:none; }
+    button{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 11px 14px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 650;
+      font-size: 14px;
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+    }
+    button:hover{ background: rgba(255,255,255,.07); border-color: rgba(124,92,255,.35); }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(45,212,191,.85));
+      border-color: transparent;
+      color: white;
+    }
+    button.primary:hover{ filter: brightness(1.05); }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .stars{
+      display:flex; gap:6px; align-items:center;
+      padding: 6px 0 2px;
+    }
+    .star-btn{
+      width: 44px; height: 44px;
+      display:grid; place-items:center;
+      border-radius: 14px;
+      font-size: 22px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+    }
+    .star-btn.on{
+      background: rgba(124,92,255,.18);
+      border-color: rgba(124,92,255,.45);
+    }
+    .meta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .divider{ height:1px; background: var(--line); margin: 14px 0; }
+
+    .msg{
+      margin-top:10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      display:none;
+    }
+    .msg.ok{ border-color: rgba(45,212,191,.35); background: rgba(45,212,191,.08); display:block; }
+    .msg.err{ border-color: rgba(255,92,122,.40); background: rgba(255,92,122,.10); display:block; }
+
+    .reviews h3{
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .review{
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+    }
+    .review:first-child{ border-top: none; padding-top: 0; }
+    .review .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 6px;
+    }
+    .small{
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .comment{
+      margin: 0;
+      line-height: 1.35;
+      font-size: 14px;
+    }
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      margin: 8px 0 0;
+    }
+    footer{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align:center;
+    }
+    a{ color: inherit; }
   </style>
 </head>
+
 <body>
-  <h1>Ratea bicis (por ID)</h1>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">RB</div>
+        <div>
+          <h1>RodaBé</h1>
+          <p>Valora bicicletes públiques per ID · ⭐ 1–5 + comentari</p>
+        </div>
+      </div>
+      <div class="badge">No oficial</div>
+    </header>
 
-  <label>ID de bici</label>
-  <input id="bikeId" placeholder="Ej: 12345" />
-  <button id="go">Ver</button>
+    <div class="grid">
+      <section class="card">
+        <label for="bikeId">ID de la bici</label>
+        <div class="row">
+          <input id="bikeId" placeholder="Ex: 12345" inputmode="numeric" />
+          <button id="go" class="primary">Veure</button>
+        </div>
+        <p class="hint">Consell: posa l’ID tal com surt a l’etiqueta/QR.</p>
+      </section>
 
-  <hr />
+      <section class="card" id="view" style="display:none;">
+        <div class="row" style="justify-content:space-between;">
+          <div>
+            <div style="font-weight:800; font-size:16px;" id="title">Bici</div>
+            <div class="meta">
+              <span id="stats">Media: — · 0 reviews</span>
+            </div>
+          </div>
+        </div>
 
-  <div id="view" style="display:none;">
-    <h2 id="title"></h2>
-    <p id="stats"></p>
+        <div class="divider"></div>
 
-    <div class="stars" id="stars"></div>
+        <label>La teva nota</label>
+        <div class="stars" id="stars"></div>
 
-    <textarea id="comment" rows="4" maxlength="400" placeholder="Comentario (opcional)"></textarea>
-    <button id="send">Enviar review</button>
-    <p id="msg"></p>
+        <label for="comment" style="margin-top:10px;">Comentari (opcional)</label>
+        <textarea id="comment" rows="4" maxlength="400" placeholder="Ex: frens fluixos, roda desinflada, tot OK…"></textarea>
+        <div class="meta">
+          <span class="small" id="countChars">0/400</span>
+          <button id="send" class="primary">Enviar</button>
+        </div>
 
-    <h3>Últimas reviews</h3>
-    <div id="reviews"></div>
+        <div id="msg" class="msg"></div>
+
+        <div class="divider"></div>
+
+        <div class="reviews">
+          <h3>Últimes reviews</h3>
+          <div id="reviews"></div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      Fet per la comunitat. Si us plau, no hi posis dades personals.
+    </footer>
   </div>
 
 <script>
-  // 1) Device id local (sin cuentas)
+  // Device id local (sin comptes)
   function getDeviceId() {
     const k = "device_id_v1";
     let v = localStorage.getItem(k);
@@ -44,24 +292,46 @@
     return v;
   }
 
-  // 2) UI estrellas
+  // IMPORTANT: tu Worker API
+  const API_BASE = "https://comvabicing.andrescarvajalquero.workers.dev";
+
+  // UI estrellas
   let selected = 0;
   const starsEl = document.getElementById("stars");
   function renderStars() {
     starsEl.innerHTML = "";
     for (let n=1; n<=5; n++) {
       const b = document.createElement("button");
+      b.className = "star-btn" + (n <= selected ? " on" : "");
       b.textContent = (n <= selected) ? "★" : "☆";
+      b.setAttribute("aria-label", `${n} estrelles`);
       b.onclick = () => { selected = n; renderStars(); };
       starsEl.appendChild(b);
     }
   }
   renderStars();
 
-  // 3) Config: tu Worker endpoint (lo pondrás en el paso 3)
-  const API_BASE = "https://comvabicing.andrescarvajalquero.workers.dev";
+  // Mensajes
+  const msgEl = document.getElementById("msg");
+  function setMsg(text, ok=true) {
+    msgEl.textContent = text;
+    msgEl.className = "msg " + (ok ? "ok" : "err");
+  }
+  function clearMsg() {
+    msgEl.textContent = "";
+    msgEl.className = "msg";
+    msgEl.style.display = "none";
+  }
+
+  // Contador chars
+  const commentEl = document.getElementById("comment");
+  const countCharsEl = document.getElementById("countChars");
+  commentEl.addEventListener("input", () => {
+    countCharsEl.textContent = `${commentEl.value.length}/400`;
+  });
 
   async function loadBike(bikeId) {
+    clearMsg();
     document.getElementById("view").style.display = "block";
     document.getElementById("title").textContent = "Bici " + bikeId;
 
@@ -69,33 +339,44 @@
     const data = await res.json();
 
     const avg = (data.avg == null) ? "—" : data.avg.toFixed(2);
-    document.getElementById("stats").textContent = `Media: ${avg} · ${data.count} reviews`;
+    document.getElementById("stats").textContent = `Mitjana: ${avg} · ${data.count} reviews`;
 
     const list = document.getElementById("reviews");
     list.innerHTML = "";
     (data.reviews || []).forEach(r => {
       const d = document.createElement("div");
-      d.className = "card";
-      d.innerHTML = `<div>${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</div>
-                     <div>${(r.comment || "<span style='opacity:.6'>(sin comentario)</span>")}</div>
-                     <small style="opacity:.7">${new Date(r.created_at).toLocaleString()}</small>`;
+      d.className = "review";
+      const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+      const when = new Date(r.created_at).toLocaleString();
+      const comment = r.comment ? r.comment : "<span style='opacity:.6'>(sense comentari)</span>";
+      d.innerHTML = `
+        <div class="top">
+          <div>${stars}</div>
+          <div class="small">${when}</div>
+        </div>
+        <p class="comment">${comment}</p>
+      `;
       list.appendChild(d);
     });
+
+    if (!data.reviews || data.reviews.length === 0) {
+      list.innerHTML = `<div class="review"><p class="comment" style="opacity:.7;">Encara no hi ha reviews.</p></div>`;
+    }
   }
 
   document.getElementById("go").onclick = () => {
     const bikeId = document.getElementById("bikeId").value.trim();
     if (bikeId) loadBike(bikeId);
+    else setMsg("Posa un ID de bici.", false);
   };
 
   document.getElementById("send").onclick = async () => {
+    clearMsg();
     const bikeId = document.getElementById("bikeId").value.trim();
-    const comment = document.getElementById("comment").value;
-    const msg = document.getElementById("msg");
-    msg.textContent = "";
+    const comment = commentEl.value;
 
-    if (!bikeId) return msg.textContent = "Pon un ID de bici.";
-    if (!selected) return msg.textContent = "Elige estrellas (1–5).";
+    if (!bikeId) return setMsg("Posa un ID de bici.", false);
+    if (!selected) return setMsg("Tria una nota (1–5).", false);
 
     const res = await fetch(`${API_BASE}/bike/${encodeURIComponent(bikeId)}/review`, {
       method: "POST",
@@ -104,16 +385,18 @@
     });
 
     if (res.ok) {
-      msg.textContent = "¡Review enviada!";
+      setMsg("Review enviada! Merci 🙂", true);
       selected = 0; renderStars();
-      document.getElementById("comment").value = "";
+      commentEl.value = "";
+      countCharsEl.textContent = "0/400";
       await loadBike(bikeId);
     } else if (res.status === 409) {
-      msg.textContent = "Ya has valorado esta bici hoy.";
+      setMsg("Ja has valorat aquesta bici avui.", false);
     } else if (res.status === 429) {
-      msg.textContent = "Has llegado al límite: 4 reviews hoy.";
+      setMsg("Has arribat al límit: 4 reviews avui.", false);
     } else {
-      msg.textContent = "Error enviando la review.";
+      const t = await res.text().catch(()=> "");
+      setMsg("Error enviant la review. " + (t ? "(Detall: " + t.slice(0,80) + ")" : ""), false);
     }
   };
 </script>
