@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0c10" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)" />
   <title>ComVaBicing</title>
   <meta name="description" content="Valora bicicletes públiques per ID (1–5 estrelles + comentari)." />
   <style>
@@ -219,6 +221,17 @@
       text-align:center;
     }
     a{ color: inherit; }
+    html, body { background: var(--bg); }
+
+    body::before{
+      content:"";
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: env(safe-area-inset-top);
+      background: var(--bg);
+      z-index: 9999;
+      pointer-events: none;
+    }
   </style>
 </head>
 
