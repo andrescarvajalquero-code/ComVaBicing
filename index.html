@@ -57,13 +57,14 @@
     .brand{
       display:flex; align-items:center; gap:10px;
     }
-    .logo{
-      width:40px; height:40px; border-radius:14px;
-      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(45,212,191,.85));
-      box-shadow: var(--shadow);
-      display:grid; place-items:center;
-      font-weight:800;
+    .logo-img{
+      width: 40px;
+      height: 40px;
+      border-radius: 10px; /* quítalo si el logo ya es redondo */
+      object-fit: contain;
+      background: transparent;
     }
+
     .brand h1{
       font-size: 20px;
       margin:0;
@@ -241,7 +242,7 @@
   <div class="wrap">
     <header>
       <div class="brand">
-        <div class="logo">CB</div>
+        <img src="/favicon.png" alt="ComVaBicing" class="logo-img">
         <div>
           <h1>ComVaBicing</h1>
           <p>Com va aquesta bici? Valora-la amb ⭐ 1–5 i comentari</p>
