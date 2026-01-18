@@ -20,3 +20,18 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+  cleanup:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old ping rows (keep 30 days)
+        run: |
+          cutoff=$(date -u -d '30 days ago' +"%Y-%m-%dT%H:%M:%SZ")
+          curl -sS -X DELETE "${SUPABASE_URL}/rest/v1/ping?t=lt.${cutoff}" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            -H "Prefer: return=minimal"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
